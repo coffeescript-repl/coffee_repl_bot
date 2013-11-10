@@ -74,6 +74,7 @@
         if (data.statusCode == null) {
           return console.log("## Success");
         } else {
+          console.log(data);
           return setTimeout((function() {
             return _this.tweet("." + _str, opt, i + 1);
           }), i * 2500);

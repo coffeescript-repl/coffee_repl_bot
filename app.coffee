@@ -49,6 +49,7 @@ class ReplBot
       if !data.statusCode?
         console.log "## Success"
       else
+        console.log data
         setTimeout (=>
           @tweet("."+_str, opt, i+1)), i*2500
   unescapeCharRef = (str)->
