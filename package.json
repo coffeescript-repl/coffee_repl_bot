@@ -1,0 +1,16 @@
+{
+  "name": "coffee_repl",
+  "version": "0.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "twitter": "0.2",
+    "coffee-script": ">= 1.6.3"
+  },
+  "repository": "",
+  "author": "",
+  "license": "MIT"
+}
