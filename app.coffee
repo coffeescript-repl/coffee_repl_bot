@@ -1,10 +1,12 @@
 Twitter = require("twitter")
 CoffeeScript = require("coffee-script")
+LiveScript = require("LiveScript")
 Sandbox = require("./sandbox")
 
 class ReplBot
   constructor: (@BOT_ID)->
     @REG = RegExp("@#{@BOT_ID}\\s+([\\s\\S]+)")
+    @compiler = CoffeeScript
     @twit = new Twitter(require("./#{@BOT_ID}_key"))
     @sandbox = new Sandbox (results)=>
       console.log "######## setTimeout ######## " + Date()
@@ -25,15 +27,19 @@ class ReplBot
     console.log csCode =
       "\n" + unescapeCharRef(
         @REG.exec(data.text)[1])+"\n"
+    if /[\"\']use coffeescript[\"\']/i.test csCode
+      @compiler = CoffeeScript
+    else if /[\"\']use livescript[\"\']/i.test csCode
+      @compiler = LiveScript
     console.log "## JavaScript"
     try
       console.log jsCode =
-        CoffeeScript.compile(
+        @compiler.compile(
           csCode.split("\n").join("\n  "),
           {bare:true})
     catch err
       console.log err
-      return @tweet(err, {"in_reply_to_status_id": data.id_str})
+      return @tweet("@#{data.user.screen_name} "+err, {"in_reply_to_status_id": data.id_str})
     console.log "## Sandbox"
     @sandbox.eval jsCode, (results)=>
       console.log results

@@ -3,12 +3,15 @@ vm   = require("vm")
 
 isEvaluating = false
 logs = []
+tids = []
 sandbox =
-  setTimeout: (cb, delay, args...)->
+  setTimeout: (cb, delay=1000, args...)->
     if delay < 1000
-    then delay = 1000
-    else setTimeout.apply(null, [cb, delay].concat(args))
+      delay = 1000
+    tids.push setTimeout.apply(null, [cb, delay].concat(args))
+    tids[tids.length-1]
   clearTimeout: clearTimeout
+  getTimerIDs: -> tids.slice(0)
   console:
     log: ->
       str = Array.prototype.map.call(arguments, (v)->
