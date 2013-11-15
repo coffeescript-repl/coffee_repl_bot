@@ -1,73 +1,76 @@
 Twitter = require("twitter")
 CoffeeScript = require("coffee-script")
-LiveScript = require("LiveScript")
+request = require("request")
 Sandbox = require("./sandbox")
 
-class ReplBot
-  constructor: (@BOT_ID)->
-    @REG = RegExp("@#{@BOT_ID}\\s+([\\s\\S]+)")
-    @compiler = CoffeeScript
+({
+  BOT_ID: "coffee_repl"
+  init: ->
+    @reg = RegExp("@#{@BOT_ID}\\s+([\\s\\S]+)")
     @twit = new Twitter(require("./#{@BOT_ID}_key"))
-    @sandbox = new Sandbox (results)=>
-      console.log "######## setTimeout ######## " + Date()
-      @tweet(results.join("\n"))
-    @tweet("restarted.", {})
+    @sandbox = new Sandbox (result)=> @tweet(result)
+    @tweet("restarted.")
     @twit.stream "user", (stream)=>
-      stream.on "data", (data)=>
-        if data.text? and
-           data.user.screen_name isnt @BOT_ID and
-           @REG.test(data.text)
-          @reply(data)
-  reply: (data)->
-    console.log "######## OnReply ######## " + Date()
-    console.log "# " + data.id_str
-    console.log "# " + data.user.screen_name
-    console.log "# " + data.text
-    console.log "## CoffeeScript"
-    console.log csCode =
-      "\n" + unescapeCharRef(
-        @REG.exec(data.text)[1])+"\n"
-    if /[\"\']use coffeescript[\"\']/i.test csCode
-      @compiler = CoffeeScript
-    else if /[\"\']use livescript[\"\']/i.test csCode
-      @compiler = LiveScript
-    console.log "## JavaScript"
-    try
-      console.log jsCode =
-        @compiler.compile(
-          csCode.split("\n").join("\n  "),
-          {bare:true})
-    catch err
-      console.log err
-      return @tweet("@#{data.user.screen_name} "+err, {"in_reply_to_status_id": data.id_str})
-    console.log "## Sandbox"
-    @sandbox.eval jsCode, (results)=>
-      console.log results
-      @tweet("@#{data.user.screen_name} #{results.join("\n")}",
-             {"in_reply_to_status_id": data.id_str})
-  tweet: (str, opt, i=0)->
-    _str = if str.length <= 140 then str
-    else                             str.substr(0, 137) + "..."
-    console.log "######## SendMessage ######## " + Date()
-    console.log "# " + i
-    console.log "# " + _str
+      stream.on "data", ({id_str, user, text})=>
+        if text? and screen_name isnt @BOT_ID and @reg.test(text)
+          screen_name = user.screen_name
+          console.log "######## onTweet ########"
+          console.log "## "+Date()
+          console.log "## "+id_str
+          console.log "## "+screen_name
+          console.log "## "+text
+          @compile @unescapeCharRef(@reg.exec(text)[1]), ({data, error})=>
+            if error?
+              @tweet("@#{screen_name} #{data}", {"in_reply_to_status_id": id_str})
+            else
+              console.log "## JavaScript"
+              console.log data
+              @sandbox.eval data, (result)=>
+                @tweet("@#{screen_name} #{result}", {"in_reply_to_status_id": id_str})
+  compile: (code, next)->
+    if url = (/^\.import\s+([\S]+)/.exec(code) or ["", false])[1]
+      console.log "## wget "+url
+      request url, (error, response, body)->
+        if !error && response.statusCode is 200
+          next({data: body})
+        else
+          next({error: true, data: error})
+    else
+      console.log "## !wget "+url
+      console.log "## CoffeeScript"
+      console.log csCode = "\n"+code+"\n"
+      try
+        setImmediate -> next({data: @cs2js(csCode)})
+      catch err
+        setImmediate -> next({error: true, data: ""+err})
+      undefined
+  tweet: (str, opt={}, i=0)->
+    _str = @cutStr(140, str)
+    console.log "######## sendTweet ########"
+    console.log "## "+Date()
+    console.log "## "+str
     @twit.updateStatus _str, opt, (data)=>
       if !data.statusCode?
-        console.log "## Success"
+        console.log "## succeeded."
       else
+        console.log "## failed."
         console.log data
-        setTimeout (=>
-          @tweet("."+_str, opt, i+1)), i*2500
-  unescapeCharRef = (str)->
-    dic =
-      "&quot;": '"'
-      "&amp;": "&"
-      "&apos;": "'"
-      "&lt;": "<"
-      "&gt;": ">"
-    for k,v of dic
-      str = str.split(k).join(v)
-    str
-
-
-new ReplBot("coffee_repl")
+        console.log "## retrying..."+Math.pow(i, 2)*600
+        setTimeout((=> @tweet("."+_str, opt, i+1)), Math.pow(i, 2)*600)
+    undefined
+  cutStr: (n, str)->
+    if str.length <= n then str
+    else                    str.substr(0, n-3) + "..."
+  cs2js: (csCode)->
+    CoffeeScript.compile(csCode.split("\n").join("\n  "), {bare:true})
+  unescapeCharRef: (str)->
+    [
+      ["&quot;", '"']
+      ["&amp;",  "&"]
+      ["&apos;", "'"]
+      ["&lt;",   "<"]
+      ["&gt;",   ">"]
+    ].reduce(((_str, [before, after])=>
+      _str.split(before).join(after)
+    ), str)
+}).init()

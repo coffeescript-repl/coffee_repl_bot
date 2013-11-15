@@ -1,1 +1,1 @@
-coffee -wcm ./
+coffee -wc ./

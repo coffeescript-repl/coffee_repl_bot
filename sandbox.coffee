@@ -1,22 +1,20 @@
-cp = require("child_process")
+child_process = require("child_process")
 
 class Sandbox
-  constructor: (@freetimeCB=->)->
-    @restart()
-  restart: ->
-    @child = cp.fork(__dirname + '/shovel.js')
-    @cb = @freetimeCB
+  constructor: (@handler)->
+    @child = child_process.fork(__dirname + '/shovel.js')
     @timer = 0
-    @child.on "message", (data)=>
+    @callback = @handler
+    @child.on "message", (result)=>
       clearTimeout(@timer)
-      @cb(data)
-      @cb = @freetimeCB
-  eval: (code, @cb)->
+      @callback(result)
+      @callback = @handler
+  eval: (code, @callback)->
     @child.send(code)
-    @timer = setTimeout (=>
-      @cb(["TimeoutError: restarting repl..."])
+    @timer = setTimeout((=>
       @child.kill("SIGKILL")
-      @restart()
-    ), 10*1000
+      @callback("TimeoutError: restarting repl...")
+      @constructor.apply(@)
+    ), 10*1000)
 
 module.exports = Sandbox
