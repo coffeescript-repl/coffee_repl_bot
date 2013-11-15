@@ -21,19 +21,19 @@ vm   = require("vm")
       setTimeout: (callback, delay=1000, args...)->
         if delay < 1000
           delay = 1000
-        tids.push(setTimeout.apply(null, [cb, delay].concat(args)))
+        tids.push(setTimeout.apply(null, [callback, delay].concat(args)))
         tids[tids.length-1]
       clearTimeout: clearTimeout
       getTimeouts: -> tids.slice(0)
       console:
-        log = =>
+        log: =>
           str = Array.prototype.map.call(arguments, (v)->
             if typeof v is "string"
             then v
             else util.inspect(v)
           ).join(", ")
           if @isEvaluating
-            logs.push(str)
+            @logs.push(str)
           else
             process.send(str)
           undefined

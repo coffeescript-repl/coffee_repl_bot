@@ -19,7 +19,7 @@
       this.sandbox = new Sandbox(function(result) {
         return _this.tweet(result);
       });
-      this.tweet("restarted.");
+      this.tweet("restarted. " + Date());
       return this.twit.stream("user", function(stream) {
         return stream.on("data", function(_arg) {
           var id_str, screen_name, text, user;
@@ -53,7 +53,8 @@
       });
     },
     compile: function(code, next) {
-      var csCode, err, url;
+      var csCode, err, url,
+        _this = this;
       if (url = (/^\.import\s+([\S]+)/.exec(code) || ["", false])[1]) {
         console.log("## wget " + url);
         return request(url, function(error, response, body) {
@@ -75,7 +76,7 @@
         try {
           setImmediate(function() {
             return next({
-              data: this.cs2js(csCode)
+              data: _this.cs2js(csCode)
             });
           });
         } catch (_error) {

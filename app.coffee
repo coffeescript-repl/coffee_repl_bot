@@ -9,7 +9,7 @@ Sandbox = require("./sandbox")
     @reg = RegExp("@#{@BOT_ID}\\s+([\\s\\S]+)")
     @twit = new Twitter(require("./#{@BOT_ID}_key"))
     @sandbox = new Sandbox (result)=> @tweet(result)
-    @tweet("restarted.")
+    @tweet("restarted. "+Date())
     @twit.stream "user", (stream)=>
       stream.on "data", ({id_str, user, text})=>
         if text? and screen_name isnt @BOT_ID and @reg.test(text)
@@ -40,7 +40,7 @@ Sandbox = require("./sandbox")
       console.log "## CoffeeScript"
       console.log csCode = "\n"+code+"\n"
       try
-        setImmediate -> next({data: @cs2js(csCode)})
+        setImmediate => next({data: @cs2js(csCode)})
       catch err
         setImmediate -> next({error: true, data: ""+err})
       undefined

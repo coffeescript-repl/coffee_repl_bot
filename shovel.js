@@ -29,7 +29,7 @@
       });
     },
     createSandbox: function() {
-      var env, log, tids,
+      var env, tids,
         _this = this;
       tids = [];
       env = {
@@ -42,28 +42,30 @@
           if (delay < 1000) {
             delay = 1000;
           }
-          tids.push(setTimeout.apply(null, [cb, delay].concat(args)));
+          tids.push(setTimeout.apply(null, [callback, delay].concat(args)));
           return tids[tids.length - 1];
         },
         clearTimeout: clearTimeout,
         getTimeouts: function() {
           return tids.slice(0);
         },
-        console: log = function() {
-          var str;
-          str = Array.prototype.map.call(arguments, function(v) {
-            if (typeof v === "string") {
-              return v;
+        console: {
+          log: function() {
+            var str;
+            str = Array.prototype.map.call(arguments, function(v) {
+              if (typeof v === "string") {
+                return v;
+              } else {
+                return util.inspect(v);
+              }
+            }).join(", ");
+            if (_this.isEvaluating) {
+              _this.logs.push(str);
             } else {
-              return util.inspect(v);
+              process.send(str);
             }
-          }).join(", ");
-          if (_this.isEvaluating) {
-            logs.push(str);
-          } else {
-            process.send(str);
+            return void 0;
           }
-          return void 0;
         }
       };
       env.global = env;
