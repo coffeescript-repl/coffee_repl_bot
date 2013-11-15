@@ -1,5 +1,6 @@
 util = require("util")
 vm   = require("vm")
+
 ({
   isEvaluating: false
   logs: []

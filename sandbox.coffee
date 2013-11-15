@@ -1,5 +1,6 @@
 child_process = require("child_process")
 
+
 class Sandbox
   constructor: (@handler)->
     @child = child_process.fork(__dirname + '/shovel.js')
@@ -18,3 +19,4 @@ class Sandbox
     ), 10*1000)
 
 module.exports = Sandbox
+

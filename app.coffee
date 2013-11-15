@@ -74,3 +74,4 @@ Sandbox = require("./sandbox")
       _str.split(before).join(after)
     ), str)
 }).init()
+
