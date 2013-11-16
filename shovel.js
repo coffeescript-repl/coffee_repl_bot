@@ -34,9 +34,10 @@
       tids = [];
       env = {
         _: require("underscore"),
+        ls: require("prelude-ls"),
         async: require("async"),
         CoffeeScript: require("coffee-script"),
-        LiveScript: require("livescript"),
+        LiveScript: require("LiveScript"),
         LispyScript: require("lispyscript"),
         GorillaScript: require("gorillascript"),
         TypedCoffeeScript: require("typed-coffee-script"),
@@ -77,7 +78,6 @@
         }
       };
       env.global = env;
-      env._.extend(env, require("prelude-ls"));
       return env;
     }
   }).init();
