@@ -53,8 +53,7 @@
       });
     },
     compile: function(code, next) {
-      var csCode, err, url,
-        _this = this;
+      var csCode, data, err, url;
       if (url = (/^\.import\s+([\S]+)/.exec(code) || ["", false])[1]) {
         console.log("## wget " + url);
         return request(url, function(error, response, body) {
@@ -74,9 +73,10 @@
         console.log("## CoffeeScript");
         console.log(csCode = "\n" + code + "\n");
         try {
+          data = this.cs2js(csCode);
           setImmediate(function() {
             return next({
-              data: _this.cs2js(csCode)
+              data: data
             });
           });
         } catch (_error) {
