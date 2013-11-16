@@ -21,7 +21,7 @@
           _this.logs.push(util.inspect(vm.runInNewContext(data, sandbox)));
         } catch (_error) {
           err = _error;
-          _this.logs.push("" + err);
+          _this.logs.push(err.stack);
         }
         process.send(_this.logs.join("\n"));
         _this.logs = [];

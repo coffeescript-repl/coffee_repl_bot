@@ -11,7 +11,7 @@ vm   = require("vm")
       try
         @logs.push(util.inspect(vm.runInNewContext(data, sandbox)))
       catch err
-        @logs.push(""+err)
+        @logs.push(err.stack)
       process.send(@logs.join("\n"))
       @logs = []
       @isEvaluating = false
