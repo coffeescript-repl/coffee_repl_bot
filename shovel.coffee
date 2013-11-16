@@ -1,6 +1,7 @@
 util = require("util")
 vm   = require("vm")
 
+
 ({
   isEvaluating: false
   logs: []
@@ -18,6 +19,14 @@ vm   = require("vm")
   createSandbox: ->
     tids = []
     env =
+      _:                 require("underscore")
+      async:             require("async")
+      CoffeeScript:      require("coffee-script")
+      LiveScript:        require("livescript")
+      LispyScript:       require("lispyscript")
+      GorillaScript:     require("gorillascript")
+      TypedCoffeeScript: require("typed-coffee-script")
+      Roy:               require("roy")
       setTimeout: (callback, delay=1000, args...)->
         if delay < 1000
           delay = 1000
@@ -38,6 +47,7 @@ vm   = require("vm")
             process.send(str)
           undefined
     env.global = env
+    env._.extend(env, require("prelude-ls"))
     env
 }).init()
 
