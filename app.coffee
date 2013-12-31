@@ -10,6 +10,10 @@ Sandbox = require("./sandbox")
     @twit = new Twitter(require("./#{@BOT_ID}_key"))
     @sandbox = new Sandbox (result)=> @tweet(result)
     @tweet("restarted. "+Date())
+    setInterval((=>
+      if (new Date()).getMinutes() is 0
+        @tweet("periodical report. "+Date())
+    ), 60*1000)
     @twit.stream "user", (stream)=>
       stream.on "data", ({id_str, user, text})=>
         if text? and screen_name isnt @BOT_ID and @reg.test(text)

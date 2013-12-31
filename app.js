@@ -20,6 +20,11 @@
         return _this.tweet(result);
       });
       this.tweet("restarted. " + Date());
+      setInterval((function() {
+        if ((new Date()).getMinutes() === 0) {
+          return _this.tweet("periodical report. " + Date());
+        }
+      }), 60 * 1000);
       return this.twit.stream("user", function(stream) {
         return stream.on("data", function(_arg) {
           var id_str, screen_name, text, user;
