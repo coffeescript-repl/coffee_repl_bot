@@ -37,11 +37,6 @@
         ls: require("prelude-ls"),
         async: require("async"),
         CoffeeScript: require("coffee-script"),
-        LiveScript: require("LiveScript"),
-        LispyScript: require("lispyscript"),
-        GorillaScript: require("gorillascript"),
-        TypedCoffeeScript: require("typed-coffee-script"),
-        Roy: require("roy"),
         setTimeout: function() {
           var args, callback, delay;
           callback = arguments[0], delay = arguments[1], args = 3 <= arguments.length ? __slice.call(arguments, 2) : [];

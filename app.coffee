@@ -15,8 +15,6 @@ Sandbox = require("./sandbox")
       if (new Date()).getMinutes() is 0
         @tweet("periodical report. "+Date())
     ), 60*1000)
-    @stream.on('reconnect', function (request, response, connectInterval) {
-
     @twit.stream "user", (stream)=>
       stream.on "data", ({id_str, user, text})=>
         if text? and screen_name isnt @BOT_ID and @reg.test(text)

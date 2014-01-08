@@ -23,11 +23,6 @@ vm   = require("vm")
       ls:                require("prelude-ls")
       async:             require("async")
       CoffeeScript:      require("coffee-script")
-      LiveScript:        require("LiveScript")
-      LispyScript:       require("lispyscript")
-      GorillaScript:     require("gorillascript")
-      TypedCoffeeScript: require("typed-coffee-script")
-      Roy:               require("roy")
       setTimeout: (callback, delay=1000, args...)->
         if delay < 1000
           delay = 1000
