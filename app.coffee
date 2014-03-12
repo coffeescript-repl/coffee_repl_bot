@@ -78,7 +78,7 @@ compile = (code, next)->
     csCode = "\n"+code+"\n"
     logging("CoffeeScript", [csCode])
     try
-      data = @cs2js(csCode)
+      data = cs2js(csCode)
       setImmediate -> next({data: data})
     catch err
       setImmediate -> next({error: true, data: ""+err})
